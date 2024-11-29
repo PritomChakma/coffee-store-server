@@ -30,6 +30,7 @@ async function run() {
     await client.connect();
 
     const coffeeCollection = client.db("coffeeDB").collection("coffee");
+    const userCollection = client.db("coffeeDB").collection("users");
 
     app.get("/coffees", async (req, res) => {
       const cursor = coffeeCollection.find();
@@ -73,6 +74,7 @@ async function run() {
 
     app.delete("/coffees/:id", async (req, res) => {
       const id = req.params.id;
+      console.log(id);
       const query = { _id: new ObjectId(id) };
       const result = await coffeeCollection.deleteOne(query);
       res.send(result);
@@ -83,6 +85,28 @@ async function run() {
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
+
+    // User related api
+    app.get("/users", async (req, res) => {
+      const cursor = userCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+      console.log("creating user", newUser);
+      const result = await userCollection.insertOne(newUser);
+      res.send(result);
+    });
+
+
+    app.delete("/users/:id", async (req, res)=>{
+      const id = req.params.id
+      const query = {_id : new ObjectId(id)}
+      const result = await userCollection.deleteOne(query)
+      res.send(result)
+    })
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
